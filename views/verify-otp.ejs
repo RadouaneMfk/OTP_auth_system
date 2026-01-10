@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verify OTP</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+    />
+    <style>
+      body {
+        background-color: #f8f9fa;
+      }
+      .card {
+        border-radius: 16px;
+        transition: transform 0.2s ease-in-out;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+      }
+      .feature-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--primary-dark)
+        );
+        color: white;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .otp-input-group {
+        position: relative;
+        display: flex;
+        align-items: center;
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      }
+      .otp-input {
+        font-size: 1.5rem;
+        text-align: center;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        border: 2px solid #e9ecef;
+        transition: all 0.3s ease;
+      }
+      .otp-input:focus {
+        box-shadow: 0 0 0 0.25rem rgba(99, 102, 241, 0.15);
+        border-color: var(--primary-color);
+      }
+      .input-group-text {
+        position: absolute;
+        right: 1rem;
+        background: transparent;
+        border: none;
+        color: var(--primary-color);
+      }
+      .alert-light {
+        background-color: rgba(99, 102, 241, 0.1);
+        border: none;
+        border-radius: 12px;
+      }
+      .btn-primary {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      .btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(99, 102, 241, 0.2);
+      }
+      .btn-outline-primary {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+      }
+      .btn-outline-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .form-label {
+        font-weight: 500;
+        color: #495057;
+      }
+    </style>
+  </head>
+  <body>
+    <%- contentFor('body') %>
+
+    <div class="container py-5">
+      <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+          <div class="card border-0 shadow-sm">
+            <div class="card-body p-4 p-md-5">
+              <div class="text-center mb-4">
+                <div class="feature-icon mb-3">
+                  <i class="bi bi-shield-check" style="font-size: 1.5rem"></i>
+                </div>
+                <h1 class="h3 mb-3">Verify Your Identity</h1>
+                <div class="alert alert-light" role="alert">
+                  <div class="d-flex align-items-center">
+                    <i
+                      class="bi bi-envelope-fill me-2"
+                      style="color: var(--primary-color)"
+                    ></i>
+                    <div>
+                      <strong>OTP Sent!</strong> We've sent a 6-digit code to<br />
+                      <span class="text-primary"><%= email %></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <% if (locals.error) { %>
+              <div class="alert alert-danger" role="alert">
+                <div class="d-flex align-items-center">
+                  <i
+                    class="bi bi-exclamation-triangle-fill me-2"
+                    style="font-size: 1.2rem"
+                  ></i>
+                  <div><%= locals.error %></div>
+                </div>
+              </div>
+              <% } %>
+
+              <form action="/verify-otp" method="POST" class="otp-form">
+                <div class="mb-4">
+                  <label for="otp" class="form-label"
+                    >Enter Verification Code</label
+                  >
+                  <div class="otp-input-group">
+                    <input
+                      type="text"
+                      class="form-control otp-input"
+                      id="otp"
+                      name="otp"
+                      placeholder="• • • • • •"
+                      pattern="[0-9]{6}"
+                      maxlength="6"
+                      required
+                      autocomplete="off"
+                    />
+                    <div class="input-group-text">
+                      <i class="bi bi-key-fill"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-check-circle-fill me-2"></i> Verify &
+                    Continue
+                  </button>
+                  <a href="/login" class="btn btn-outline-primary">
+                    <i class="bi bi-arrow-left me-2"></i> Back to Login
+                  </a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // OTP input formatting
+        const otpInput = document.querySelector(".otp-input");
+        if (otpInput) {
+          otpInput.addEventListener("input", function (e) {
+            // Remove any non-digit characters
+            this.value = this.value.replace(/[^0-9]/g, "");
+
+            // Add spaces between digits for better readability
+            if (this.value.length > 0) {
+              this.value = this.value;
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
