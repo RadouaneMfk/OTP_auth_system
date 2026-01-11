@@ -35,7 +35,10 @@ app.use(session({
 	secret: process.env.SESSION_SECRET,
 	resave: false,
 	saveUninitialized: true,
-	cookie: { secure: false },
+	cookie: {
+		secure: false ,
+		maxAge: 2 * 24 * 60 * 60 * 1000,
+	},
 }))
 
 app.get('/', (req, res) => {
@@ -108,9 +111,12 @@ app.post('/verify-otp', async (req, res) => {
 				console.log(err);
 				res.redirect("login", {title: "login- OTP auth system"});
 			}
+			delete req.session.otp;
+			delete req.session.otpAttempts;
+			delete req.session.otpExpiry;
 			req.session.email = email;
 			req.session.isAuthenticated = true;
-			return res.render("dashboard", {title: "dashboard- OTP auth system", email});
+			return res.redirect('/dashboard');
 		})
 
 	} catch (error) {
