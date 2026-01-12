@@ -5,6 +5,8 @@ import session from "express-session";
 import path from "path";
 import expressLayouts from "express-ejs-layouts";
 import crypto from "crypto";
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
 
 configDotenv();
 
@@ -12,10 +14,17 @@ const PORT = process.env.PORT || 3000
 
 const app = express();
 
+app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(expressLayouts);
 app.set("view engine", "ejs");
+
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000,
+	max: 5,
+})
+
 
 function isAuthenticate(req, res, next) {
 	if (req.session.isAuthenticated)
@@ -34,10 +43,12 @@ const transporter = nodemailer.createTransport({
 app.use(session({
 	secret: process.env.SESSION_SECRET,
 	resave: false,
-	saveUninitialized: true,
+	saveUninitialized: false,
 	cookie: {
-		secure: false ,
-		maxAge: 2 * 24 * 60 * 60 * 1000,
+		secure: process.env.NODE_ENV === "production",
+		maxAge: 1 * 24 * 60 * 60 * 1000,
+		httpOnly: true,
+		sameSite: "Lax",
 	},
 }))
 
@@ -53,7 +64,7 @@ app.get('/login', (req, res) => {
 	res.render("login", {title: "login- OTP auth system"});
 })
 
-app.post('/send-otp', async (req, res) => {
+app.post('/send-otp', limiter, async (req, res) => {
 	try {
 		const {email} = req.body;
 		req.session.otpAttempts = 0;
@@ -76,7 +87,7 @@ app.post('/send-otp', async (req, res) => {
 	}
 })
 
-app.post('/verify-otp', async (req, res) => {
+app.post('/verify-otp', limiter, async (req, res) => {
 	try {
 		const {otp} = req.body;
 		req.session.otpAttempts = (req.session.otpAttempts || 0) + 1;
