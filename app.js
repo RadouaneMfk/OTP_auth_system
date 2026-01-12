@@ -2,6 +2,7 @@ import { configDotenv } from "dotenv";
 import express from "express";
 import nodemailer from "nodemailer"
 import session from "express-session";
+import path from "path";
 import expressLayouts from "express-ejs-layouts";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
