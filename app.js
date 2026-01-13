@@ -2,10 +2,11 @@ import { configDotenv } from "dotenv";
 import express from "express";
 import nodemailer from "nodemailer"
 import session from "express-session";
-import path from "path";
+import path, {dirname} from "path";
 import expressLayouts from "express-ejs-layouts";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
+import { fileURLToPath } from "url";
 
 configDotenv();
 
@@ -13,12 +14,15 @@ const PORT = process.env.PORT || 3000
 
 const app = express();
 
-app.set("views", path.join(process.cwd()), "views");
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 app.use(helmet());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
 app.use(expressLayouts);
 app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views"));
 
 const limiter = rateLimit({
 	windowMs: 15 * 60 * 1000,
