@@ -7,6 +7,7 @@ import expressLayouts from "express-ejs-layouts";
 import rateLimit from "express-rate-limit";
 import helmet from "helmet";
 import { fileURLToPath } from "url";
+import crypto from "crypto";
 
 configDotenv();
 
@@ -78,13 +79,12 @@ app.post('/send-otp', limiter, async (req, res) => {
 		req.session.otp = hashedOtp;
 		req.session.email = email;
 		req.session.otpExpiry = Date.now() + 5 * 60 * 1000;
-		// await transporter.sendMail({
-		// 	from: process.env.EMAIL_USER,
-		// 	to: email,
-		// 	subject: "your OTP for login",
-		// 	text: `your OTP is ${otp}, this will expire after 5 minutes!`,
-		// })
-		console.log("otp:", otp);
+		await transporter.sendMail({
+			from: process.env.EMAIL_USER,
+			to: email,
+			subject: "your OTP for login",
+			text: `your OTP is ${otp}, this will expire after 5 minutes!`,
+		})
 		res.render("verify-otp", {title: "verify-otp- OTP auth system", email: email, error: null});
 	} catch (error) {
 		console.log(error);
